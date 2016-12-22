@@ -1,0 +1,11 @@
+function y=g(state_t,u_t) 
+%the motion model, this a deterministic function of the previous state and the controls input.
+%Example: if the abciss is greater than 1, 
+if state_t(1)>1
+    y=
+end
+else
+    
+end
+
+end
