@@ -10,7 +10,7 @@ function [H_t_tild,b_t_tild] = SEIF_sparsification(H_t,b_t,mu_t,n)
 
 k=2;
 n = size(b_t);
-Y0=1; %how to determine Yplus??
+Y0 = 1; %how to determine Yplus??
 Yplus=[2,3];  %how to determine Yplus??
 
 % Projection matrices

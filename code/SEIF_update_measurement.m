@@ -1,4 +1,4 @@
-function [H_t,b_t] =SEIF_update_measurement(H_prediction_t,b_prediction_t,mu_prediction_t,z_t,H_t_1,b_t_1 ,Z_inverse)
+function [H_t,b_t] = SEIF_update_measurement(H_prediction_t,b_prediction_t,mu_prediction_t,H_t_1,b_t_1 ,Z_inverse,n)
 %This function compute the step of measurement update in SEIF
 %   Input:
 %   H_prediction_t: the information matrix predicted in the step motion
@@ -13,22 +13,28 @@ function [H_t,b_t] =SEIF_update_measurement(H_prediction_t,b_prediction_t,mu_pre
 %   output:
 %   H_t: the information matrix update
 %   b_t: the information vector update
-    idx_feature = []; %index of feature observed
-    idx= [idx_robot _position, idx_feature];
+
+    %Example: 
+    idx_robot_position = 1;
+    idx_feature = [2,3];
+
+    idx= [idx_robot_position, idx_feature];
     n_idx= length(idx);
     % compute the measurement function h at mu_prediction_t
-     h_mu_prediction_t =[] ;
+    h_mu_prediction_t =[] ;
     
     % compute the derivation of measurement function h at mu_prediction_t
     % only compute for feature observed idx_feature and the robot position
     gradient_h_mu_prediction_t = [];
-    
     
     % compute only the component of update
     H_prediction_t_sub = zeros(n_idx,n_idx);
     b_prediction_t_sub = zeros(1,n_idx);
     Z_inverse_sub = zeros(n_idx,n_idx);
     mu_prediction_t_sub = zeros(n_idx,1);
+    
+    %Computationof z_t, spatial information on the relation of the robot?s pose and the location of a feature
+    z_t=h(state_t)+
     
     for i = 1:n_idx
         for j=1:n_idx
@@ -52,6 +58,5 @@ function [H_t,b_t] =SEIF_update_measurement(H_prediction_t,b_prediction_t,mu_pre
         b_t(idx(i)) = b_t_sub(i);
     end
     
-
 end
 
