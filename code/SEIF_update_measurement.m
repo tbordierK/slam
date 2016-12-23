@@ -34,7 +34,7 @@ function [H_t,b_t] = SEIF_update_measurement(H_prediction_t,b_prediction_t,mu_pr
     mu_prediction_t_sub = zeros(n_idx,1);
     
     %Computationof z_t, spatial information on the relation of the robot?s pose and the location of a feature
-    z_t=h(state_t)+
+    z_t=h(mu_prediction_t); %don't know how to compute it 
     
     for i = 1:n_idx
         for j=1:n_idx
