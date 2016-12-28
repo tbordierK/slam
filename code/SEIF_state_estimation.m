@@ -1,4 +1,4 @@
-function mu_t = SEIF_state_estimation(H_t,b_t,mu_prediction_t,K,n)
+function [mu_t] = SEIF_state_estimation(H_t,b_t,mu_prediction_t,K,idxFeature)
 %This function estimate the expectation of state for the step
 %sparsifisation
 %   Input:
@@ -9,13 +9,12 @@ function mu_t = SEIF_state_estimation(H_t,b_t,mu_prediction_t,K,n)
 %   output:
 %   mu_t: estimated state
 
-   %Example: 
-   idxrobotposition = 1;
-   idxfeatures = [2,3];
+
    
-   % index of robot postion and the locations of active features
-   idx = [idxrobotposition, idxfeatures];
-   n_idx = length(idx);
+   % index of robot position and the locations of active features
+   idxrobotposition = 1;
+   idx = [idxrobotposition, idxFeature];
+   n_idx = length(idx); % always 2
    H_t_sub = zeros(n_idx,n_idx);
    b_t_sub = zeros(1,n_idx);
    mu_prediction_t_sub= zeros(n_idx,1);

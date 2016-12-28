@@ -1,4 +1,4 @@
-function [H_t,b_t] = SEIF_update_measurement(H_prediction_t,b_prediction_t,mu_prediction_t,z_t,Z,n,id)
+function [H_t,b_t] =SEIF_measurement_update(H_prediction_t,b_prediction_t,mu_prediction_t,z_t,H_t_1,b_t_1 ,Z_inverse)
 %This function compute the step of measurement update in SEIF
 %   Input:
 %   H_prediction_t: the information matrix predicted in the step motion
@@ -9,31 +9,26 @@ function [H_t,b_t] = SEIF_update_measurement(H_prediction_t,b_prediction_t,mu_pr
 %                    observed
 %   H_t_1:  information matrix for instant t-1
 %   b_t_1:   information vector for instant t-1
-%   Z: covqriqnce matrix for the noise in the observations models
+%   Z_inverse: information matrix for the noise in the observations models
 %   output:
 %   H_t: the information matrix update
 %   b_t: the information vector update
-
-    Z_inverse = inv(Z);
-    %Example: 
-    idx_robot_position = 1;
-    idx_feature = id;
-
-    idx= [idx_robot_position, idx_feature];
+    idx_feature = []; %index of feature observed
+    idx= [idx_robot _position, idx_feature];
     n_idx= length(idx);
     % compute the measurement function h at mu_prediction_t
-    h_mu_prediction_t=h(mu ;
+     h_mu_prediction_t =[] ;
     
     % compute the derivation of measurement function h at mu_prediction_t
     % only compute for feature observed idx_feature and the robot position
     gradient_h_mu_prediction_t = [];
+    
     
     % compute only the component of update
     H_prediction_t_sub = zeros(n_idx,n_idx);
     b_prediction_t_sub = zeros(1,n_idx);
     Z_inverse_sub = zeros(n_idx,n_idx);
     mu_prediction_t_sub = zeros(n_idx,1);
-    
     
     for i = 1:n_idx
         for j=1:n_idx
@@ -45,12 +40,11 @@ function [H_t,b_t] = SEIF_update_measurement(H_prediction_t,b_prediction_t,mu_pr
     end
     
     %update
-    
     H_t_sub = H_prediction_t_sub + gradient_h_mu_prediction_t*Z_inverse_sub*gradient_h_mu_prediction_t';
     b_t_sub = b_prediction_t_sub + (z_t - h_mu_prediction_t+gradient_h_mu_prediction_t'* mu_prediction_t_sub)'*Z_inverse_sub*gradient_h_mu_prediction_t';
     
-    H_t = zeros(n);
-    b_t = zeros(n);
+    H_t = H_t_1;
+    b_t = b_t_1;
     for i = 1:n_idx
         for j=1:n_idx
             H_t(idx(i),idx(j)) = H_t_sub(i,j);
@@ -58,5 +52,6 @@ function [H_t,b_t] = SEIF_update_measurement(H_prediction_t,b_prediction_t,mu_pr
         b_t(idx(i)) = b_t_sub(i);
     end
     
+
 end
 
