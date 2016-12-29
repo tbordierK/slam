@@ -1,4 +1,4 @@
-function [H_t,b_t] = SEIF_update_measurement_2(H_t_bar,b_t_bar,mu_t,z_t,Z,n,id,robot)
+function [H_t,b_t] = SEIF_update_measurement_2(H_t_bar,b_t_bar,mu_t,z_t,z_t_hat,Z,n,id,robot)
 %This function compute the step of measurement update in SEIF
 %   Input:
 %   H_bar_t: the information matrix predicted in the step motion
@@ -14,11 +14,16 @@ function [H_t,b_t] = SEIF_update_measurement_2(H_t_bar,b_t_bar,mu_t,z_t,Z,n,id,r
 
     inv_Z = inv(Z);
     
-    C_t = zeros(n);
+    % This is the special case for the measurement function h we have
+    % defined. 
+    
+    C_t = zeros(n,2);
     C_t(1:2,1:2) = -eye(2);
-    C_t((2*id+1):(2*id+2),(2*id+1):(2*id+2)) = eye(2);
+    C_t((2*id+1):(2*id+2),1:2) = eye(2);
     
     H_t = H_t_bar + C_t*inv_Z*C_t';
-    b_t = b_t_bar + (z_t - robot.(mu_t,id)+C_t'*mu_t)'*inv_Z*C_t';
+
+    b_t = b_t_bar + ((z_t - z_t_hat+C_t'*mu_t)'*inv_Z*C_t')';
+    
 end
 

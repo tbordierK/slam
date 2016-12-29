@@ -16,7 +16,7 @@ classdef Robot2D
         
       end
       
-      function [relative_measure,id] = measure_closest(obj,env_features)
+      function [min_distance,id] = measure_closest(obj,env_features)
           % Measures the surrounding features in a radius sensor_range
           % TODO: check is at same position the feature has been measures
           
