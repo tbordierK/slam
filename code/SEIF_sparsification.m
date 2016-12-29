@@ -12,11 +12,23 @@ k=2;
 n = size(b_t,1);
 
 % Define the set Y_plus, Y_zero, Y_min
-% Y_plus = {active features s.t. the coeff in H_t is below threshold} ? for example, I think we
+% Y_plus = {active features s.t. the pair of coeff in H_t is below threshold} ? for example, I think we
 % have to define the criteria for sparsification ourselves. 
-% Y_zero = {active features s.t. the coeff in H_t is above threshold}
+% Y_zero = {active features s.t. the pair of coeff in H_t is above threshold}
 % Y_min = {passive features}
 
+robot_links = zeros(1,n/2);
+% We need to define the strength of links based on the values in H_t, but
+% given our representation of the states
+% (x_robot,y_robot,x_feat1,y_feat2,...) I think we need to find a way to
+% define the strenght of the relationship between robot and feature based
+% on the the x,y values in the H_t matrix???
+
+for k=1:(n/2)
+    robot_links(k) = norm([H_t(1,k),H_t(1,k+1)]),
+end
+
+% To be modified to threshold on robot_links?
 threshold = 2;
 Y_plus = find(H_t(1,:)<threshold & H_t(1,:)>0);
 Y_0 = find(H_t(1,:)>threshold &  H_t(1,:)~=0);
@@ -28,6 +40,8 @@ Y_0
 S_x = [eye(2),zeros(2,2*n)];  
 
 S_Y0 = zeros(2,n);
+(1+2*Y_0)
+S_Y0
 S_Y0(1:2,(1+2*Y_0):end) = eye(2);
 
 S_x_Y0 = [eye(2),zeros(2,2*n)];   
