@@ -33,5 +33,5 @@ scatter(X_features_real,Y_features_real,140,'MarkerEdgeColor',[0 .5 .5],...
 hold on
 scatter(robot_position_x,robot_position_y,'filled','o')
 legend('estimated features','real features','robot position');
-
+axis([(-2) 14 (-4) 10]);
 end

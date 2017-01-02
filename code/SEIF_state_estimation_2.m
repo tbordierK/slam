@@ -18,7 +18,7 @@ function [mu_t] = SEIF_state_estimation_2(H_t,b_t,mu_prediction_t,K,id,n)
     for k=1:K
         v((2*id+1):((2*id+2)),1)  = pinv(S_i'*H_t*S_i)*S_i'*(b_t - H_t*v + H_t*S_i*(S_i')*v);
     end
-    
     mu_t = v;
+
 end
 

@@ -24,6 +24,7 @@ function [H_t_bar,b_t_bar,mu_t_bar] = SEIF_motion_update(previous_H_t,previous_b
     %Outputs
     H_t_bar = H_prime - delta_H;
     b_t_bar = previous_b_t - (previous_mu_t'*(delta_H - previous_H_t + H_prime))' + (delta_t'*H_t_bar)';
-    mu_t_bar = previous_b_t + delta_t;
-    
+   
+    mu_t_bar = previous_mu_t + delta_t;
+   
 end
