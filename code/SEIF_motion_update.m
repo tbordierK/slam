@@ -1,4 +1,4 @@
-function [H_t_bar,b_t_bar,mu_t_bar] = SEIF_motion_update(previous_H_t,previous_b_t,previous_mu_t,u_t,A_t,U_t,n)
+function [H_t_bar,b_t_bar] = SEIF_motion_update(previous_H_t,previous_b_t,previous_mu_t,u_t,A_t,U_t,n)
 %This function computes the motion update
 %   Inputs:
 %       previous_H_t: previous information (at step t-1)
@@ -14,8 +14,8 @@ function [H_t_bar,b_t_bar,mu_t_bar] = SEIF_motion_update(previous_H_t,previous_b
     noise = zeros(n,1);
     noise(1:2,1) = U_t*randn(2,1);
     delta_t = g_motion(previous_mu_t,u_t) + noise;
- 
-    psi_t = eye(n) + Sx*inv(eye(2)+inv(Sx'*A_t*Sx))*(Sx');
+    delta_t
+    psi_t = eye(n) + Sx*inv(eye(2)+pinv(Sx'*A_t*Sx))*(Sx');
     H_prime = psi_t'*previous_H_t*psi_t;
     
     delta_H = H_prime*Sx*inv(inv(U_t)+Sx'*H_prime*Sx)*(Sx')*H_prime;
@@ -25,6 +25,5 @@ function [H_t_bar,b_t_bar,mu_t_bar] = SEIF_motion_update(previous_H_t,previous_b
     H_t_bar = H_prime - delta_H;
     b_t_bar = previous_b_t - (previous_mu_t'*(delta_H - previous_H_t + H_prime))' + (delta_t'*H_t_bar)';
    
-    mu_t_bar = previous_mu_t + delta_t;
    
 end

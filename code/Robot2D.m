@@ -13,7 +13,7 @@ classdef Robot2D
           % input: - val is a 3-array
          obj.x_position = val(1);
          obj.y_position = val(2);
-         obj.sensor_range = val(3);
+         obj.sensor_range = val(3)^2;
     
         
       end

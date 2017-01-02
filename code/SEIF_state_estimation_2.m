@@ -8,17 +8,20 @@ function [mu_t] = SEIF_state_estimation_2(H_t,b_t,mu_prediction_t,K,id,n)
 %   K: number of iteration for the gradient descend
 %   output:
 %   mu_t: estimated state
-
-    S_i = zeros(n,2);
-    S_i((2*id):((2*id+1)),1) = 1;
-    S_i((2*id):((2*id+1)),2) = 1;
     
     v = mu_prediction_t;
+    for id=1:(n/2-1)
+        S_i = zeros(n,2);
+        S_i((2*id+1),1) = 1;
+        S_i(((2*id+2)),2) = 1;
     
-    for k=1:K
-        v((2*id+1):((2*id+2)),1)  = pinv(S_i'*H_t*S_i)*S_i'*(b_t - H_t*v + H_t*S_i*(S_i')*v);
-    end
-    mu_t = v;
+        
+
+        for k=1:K
+            v((2*id+1):((2*id+2)),1)  = inv(S_i'*H_t*S_i)*S_i'*(b_t - H_t*v + H_t*S_i*(S_i')*v);
+        end
+     end
+     mu_t = v;
 
 end
 
