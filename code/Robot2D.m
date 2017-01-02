@@ -18,7 +18,7 @@ classdef Robot2D
         
       end
       
-      function [distances,ids] = measure_closest(obj,env_features)
+      function [measures,ids] = measure(obj,env_features)
           % Measures the surrounding features in a radius sensor_range
           % TODO: check is at same position the feature has been measures
           
@@ -32,27 +32,11 @@ classdef Robot2D
               distances(k) = norm(pos-env_features(:,k));     
           end
           
-          ids = find(distances<obj.sensor_range);
-          distances = distances(ids);
+          ids = find(distances < obj.sensor_range);
+          measures = env_features(:,ids);
       end
       
-      function [surrounding] = measure(obj,env_features)
-          % Measures the surrounding features in a radius sensor_range
-          % TODO: check is at same position the feature has been measures
-          
-          n_features = size(env_features);
-          n_features = n_features(2);
-          pos = [obj.x_position;obj.y_position];
-          
-          surrounding = zeros(1,n_features);
-          
-          for k=1:n_features
-              distance = norm(pos-env_features(:,k));
-              if distance < obj.sensor_range
-                  surrounding(k) = 1;
-              end
-          end         
-      end
+     
       
       
       function [obj] = move(obj,commands)
