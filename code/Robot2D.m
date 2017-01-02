@@ -3,6 +3,7 @@ classdef Robot2D
       x_position
       y_position
       sensor_range
+      sensor_angle
   
    end
    methods
@@ -13,6 +14,7 @@ classdef Robot2D
          obj.x_position = val(1);
          obj.y_position = val(2);
          obj.sensor_range = val(3);
+    
         
       end
       
@@ -58,16 +60,13 @@ classdef Robot2D
       end
       
       
-      function [obj,environment] = move(obj,commands,environment)
+      function [obj] = move(obj,commands)
           % Moves the robot
           %Inputs
-          % commands: pair of floats
-          % environment object
-          % Are we to add noise on the commands? 
-          obj.x_position = commands(1); % + ex_t?
-          obj.y_position = commands(2); % + ey_t?
-          % This moves the robot in the environment
-          environment = environment.move_robot(commands);
+          % commands: pair of floats (noisy values)
+
+          obj.x_position = obj.x_position + commands(1); % + ex_t?
+          obj.y_position = obj.x_position + commands(2); % + ey_t?
       end
       
       function [x,y] = getPosition(obj)

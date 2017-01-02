@@ -32,43 +32,48 @@ threshold = 2;
 Y_plus = find(robot_links(:)>threshold)+1;
 Y_0 = find((robot_links(:)<=threshold) & (robot_links(:)>0.1))+1;
 
-% Projection matrices
+if isempty(Y_0)
+    % No sparsification
+    H_t_tild = H_t;
+    b_t_tild = b_t;
+else
+    % Projection matrices
 
-S_x = [eye(2),zeros(2,2*m)];  
+    S_x = [eye(2),zeros(2,2*m)];  
 
-S_Y0 = zeros(2,n);
+    S_Y0 = zeros(2,n);
 
-for j=Y_0
-    S_Y0(1:2,(1+2*j):(2+2*j)) = eye(2);
+    for j=Y_0
+        S_Y0(1:2,(1+2*j):(2+2*j)) = eye(2);
+    end
+
+    S_x_Y0 = [eye(2),zeros(2,2*m)];   
+    for j=Y_0
+        S_x_Y0(1:2,(1+2*j):(2+2*j)) = eye(2);
+    end
+
+    S_x_Y0_Yplus = [eye(2),zeros(2,2*m)];   
+    for j=Y_plus
+        S_x_Y0_Yplus(1:2,(1+2*j):(2+2*j)) = eye(2);
+    end
+    for j=Y_0
+        S_x_Y0_Yplus(1:2,(1+2*j):(2+2*j)) = eye(2);
+    end
+
+    % Pre-computations
+    S_x = S_x';
+    S_Y0 = S_Y0';
+    S_x_Y0 = S_x_Y0';
+    S_x_Y0_Yplus = S_x_Y0_Yplus';
+    H_t_prim = S_x_Y0_Yplus*S_x_Y0_Yplus'*H_t*S_x_Y0_Yplus*S_x_Y0_Yplus';
+    H_t_1 = H_t_prim - H_t_prim*S_Y0*inv(S_Y0'*H_t_prim*S_Y0)*S_Y0'*H_t_prim;
+    H_t_2 = H_t_prim - H_t_prim*S_x_Y0*inv(S_x_Y0'*H_t_prim*S_x_Y0)*S_x_Y0'*H_t_prim;
+    H_t_3 = H_t - H_t*S_x*inv(S_x'*H_t*S_x)*S_x'*H_t;
+
+    % We compute H_t_tild and b_t_tild
+
+    H_t_tild = H_t_1 - H_t_2 + H_t_3;
+
+    b_t_tild = b_t + (mu_t'*(H_t_tild - H_t))';
 end
-
-S_x_Y0 = [eye(2),zeros(2,2*m)];   
-for j=Y_0
-    S_x_Y0(1:2,(1+2*j):(2+2*j)) = eye(2);
-end
-
-S_x_Y0_Yplus = [eye(2),zeros(2,2*m)];   
-for j=Y_plus
-    S_x_Y0_Yplus(1:2,(1+2*j):(2+2*j)) = eye(2);
-end
-for j=Y_0
-    S_x_Y0_Yplus(1:2,(1+2*j):(2+2*j)) = eye(2);
-end
-
-% Pre-computations
-S_x = S_x';
-S_Y0 = S_Y0';
-S_x_Y0 = S_x_Y0';
-S_x_Y0_Yplus = S_x_Y0_Yplus';
-H_t_prim = S_x_Y0_Yplus*S_x_Y0_Yplus'*H_t*S_x_Y0_Yplus*S_x_Y0_Yplus';
-H_t_1 = H_t_prim - H_t_prim*S_Y0*inv(S_Y0'*H_t_prim*S_Y0)*S_Y0'*H_t_prim;
-H_t_2 = H_t_prim - H_t_prim*S_x_Y0*inv(S_x_Y0'*H_t_prim*S_x_Y0)*S_x_Y0'*H_t_prim;
-H_t_3 = H_t - H_t*S_x*inv(S_x'*H_t*S_x)*S_x'*H_t;
-
-% We compute H_t_tild and b_t_tild
-
-H_t_tild = H_t_1 - H_t_2 + H_t_3;
-
-b_t_tild = b_t + (mu_t'*(H_t_tild - H_t))';
-
 end
