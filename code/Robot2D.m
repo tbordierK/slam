@@ -25,7 +25,7 @@ classdef Robot2D
           n_features = size(env_features,2)/2;
           env_features = reshape(env_features,2,n_features);
           pos = [obj.x_position;obj.y_position];
-          
+         
           distances = zeros(1,n_features);
           
           for k=1:n_features
@@ -33,7 +33,8 @@ classdef Robot2D
           end
           
           ids = find(distances < obj.sensor_range);
-          measures = env_features(:,ids);
+          % Relative x and y 
+          measures = env_features(:,ids)-pos;
       end
       
      
