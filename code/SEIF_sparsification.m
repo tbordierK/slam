@@ -29,8 +29,8 @@ end
 
 % To be modified to threshold on robot_links?
 threshold = 2;
-Y_plus = find(robot_links(:)>threshold)+1;
-Y_0 = find((robot_links(:)<=threshold) & (robot_links(:)>0.1))+1;
+Y_plus = find(robot_links(:)>threshold)-1;
+Y_0 = find((robot_links(:)<=threshold) & (robot_links(:)>0.1))-1;
 
 if isempty(Y_0)
     % No sparsification
@@ -42,23 +42,24 @@ else
     S_x = [eye(2),zeros(2,2*m)];  
 
     S_Y0 = zeros(2,n);
-
     for j=Y_0
         S_Y0(1:2,(1+2*j):(2+2*j)) = eye(2);
     end
 
-    S_x_Y0 = [eye(2),zeros(2,2*m)];   
+    S_x_Y0 = [eye(2),zeros(2,2*m)];
     for j=Y_0
         S_x_Y0(1:2,(1+2*j):(2+2*j)) = eye(2);
     end
-
+ 
     S_x_Y0_Yplus = [eye(2),zeros(2,2*m)];   
     for j=Y_plus
         S_x_Y0_Yplus(1:2,(1+2*j):(2+2*j)) = eye(2);
     end
+   
     for j=Y_0
         S_x_Y0_Yplus(1:2,(1+2*j):(2+2*j)) = eye(2);
     end
+ 
 
     % Pre-computations
     S_x = S_x';
