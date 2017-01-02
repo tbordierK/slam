@@ -5,19 +5,21 @@ n=2*m+2; %dimension of the state vector
 % Dimension = 2
 
 nb_iterations = 10; %number of iterations
-K = 10; %number of iterations for the computation of the mean estimate
+K = 100; %number of iterations for the computation of the mean estimate
+
+sensor_range = 2;
+robot = Robot2D([1,1,sensor_range]);
+env_features = [1,1,2,3,1,0];
 
 %Initialization
 previous_H_t=rand(n,n);
 previous_b_t=rand(n,1);
-previous_mu_t=rand(n,1); 
+previous_mu_t=[robot.x_position;robot.y_position;rand(n-2,1)]; 
 u_t=zeros(2,1); %constant control input
 U_t=0.001*eye(2); % Covariance matrix of the stochastic part of the robot motion model
 A_t=eye(n); % Special case linear dynamics, A_t = 0 always. 
 
-sensor_range = 5;
-robot = Robot2D([0,0,sensor_range]);
-env_features = [1,1,2,3,1,0];
+
 
 % Define noises
 mu_measurement = 0;
@@ -29,11 +31,13 @@ for k = 1:nb_iterations
     display(k)
     
     [H_t_bar,b_t_bar,mu_t_bar] = SEIF_motion_update(previous_H_t,previous_b_t,previous_mu_t,u_t,A_t,U_t,n);
-    [z_t_hat,id] = robot.measure_closest(env_features);
-        
+    
+    % Returns a list of features within robot range and their distance
+    [z_t_hat,ids] = robot.measure_closest(env_features);
+   
     if id ~= -1
         % If the robot measures a feature
-
+        
         mu_t = SEIF_state_estimation_2(H_t_bar,b_t_bar,mu_t_bar,K,id,n);
 
         % The noise for measurement is included here. 

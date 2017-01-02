@@ -3,6 +3,5 @@ function y = g_motion(mu_t,u_t)  % function g in the article
 n = size(mu_t,1);
 y = zeros(n,1);
 y(1:2,1) = u_t;
-end
 
-% Special case with linear mechanics, A_t = 0; 
+end
