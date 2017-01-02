@@ -37,6 +37,9 @@ classdef Robot2D
                   
                   relative_measure(1) = env_features(1,k) - obj.x_position;
                   relative_measure(2) = env_features(2,k) - obj.y_position;
+              else
+                min_distance = -1;
+                id = -1;
               end
           end         
       end
