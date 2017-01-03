@@ -6,6 +6,7 @@ m = size(robot_links,2);
 
 Y_plus = zeros(1,bound);
 
+
 for i=1:bound
     Y_plus(i) = order(i+m-bound); 
 end

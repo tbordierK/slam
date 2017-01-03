@@ -2,10 +2,10 @@ clear;
 clf;
 K = 10 ; %number of iterations for the computation of the mean estimate
    
-sensor_range = 1.5;
+sensor_range = 2;
 robot = Robot2D([1,1,sensor_range]); 
 %env_features = [[1,1,2,2,3,3,4,4],[1,1,2,2,3,3,4,4]+[1,0,1,0,1,0,1,0],[1,1,2,2,3,3,4,4]-[1,0,1,0,1,0,1,0]];
-env_features = generate_grid();
+env_features = generate_grid(3);
 m=size(env_features,2)/2; %number of features
 n=2*m+2; %dimension of the state vector
 
@@ -52,8 +52,7 @@ for k = 1:nb_iterations
     [z_t_hat,ids] = robot.measure(env_features);
     nb_features = size(ids,2);
     
-    z_t_hat
-    ids
+
     % Testing if at least a feature is within range
     if nb_features~=0   
     
@@ -98,8 +97,8 @@ for k = 1:nb_iterations
     previous_mu_t = mu_t;
    
     % Plots the map (estimated robot position, estimated features, real position of features)
-%     clf;
-    mu_t 
+    %     clf;
+ 
     [X_map,Y_map] = slam_map(mu_t,env_features,robot,ids,X_map,Y_map);    
     display(sprintf('Press any key to proceed')); 
     pause;
