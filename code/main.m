@@ -2,7 +2,7 @@ clear;
 clf;
 K = 10 ; %number of iterations for the computation of the mean estimate
    
-sensor_range = 0.5;
+sensor_range = 1.5;
 robot = Robot2D([1,1,sensor_range]); 
 %env_features = [[1,1,2,2,3,3,4,4],[1,1,2,2,3,3,4,4]+[1,0,1,0,1,0,1,0],[1,1,2,2,3,3,4,4]-[1,0,1,0,1,0,1,0]];
 env_features = generate_grid();
@@ -75,20 +75,17 @@ for k = 1:nb_iterations
             mu_t = pinv(H_t)*b_t;
             
             %Sparsification
-            %[H_t_tild, b_t_tild] = SEIF_sparsification(H_t,b_t,mu_t,n);
+            [H_t, b_t] = SEIF_sparsification(H_t,b_t,mu_t,n);
+
         end   
     
     else   %no feature measured in the sensor range
-        
-        display(1);
-%         [H_t_bar,b_t_bar] = SEIF_motion_update_2(H_t,b_t,mu_t,u_t,A_t,U_t,n);
-%         [H_t,b_t] = SEIF_update_measurement_2(H_t_bar,b_t_bar,previous_mu_t,zeros(2,1),zeros(2,1),Z,n,0);
+
         H_t = H_t_bar;
         b_t = b_t_bar;
         display(mu_t);
         mu_t = pinv(H_t)*b_t;
-%         [H_t_bar,b_t_bar] = SEIF_motion_update_2(H_t_bar,b_t_bar,mu_t,u_t,A_t,U_t,n);
-        
+
     end
 
     %update robot position
@@ -96,8 +93,6 @@ for k = 1:nb_iterations
     robot.x_position = mu_t(1); 
     robot.y_position = mu_t(2);
 
-%     previous_H_t = H_t_bar;
-%     previous_b_t = b_t_bar;
     previous_H_t = H_t;
     previous_b_t = b_t;
     previous_mu_t = mu_t;

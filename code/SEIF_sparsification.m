@@ -14,6 +14,8 @@ function [H_t_tild,b_t_tild] = SEIF_sparsification(H_t,b_t,mu_t,n)
 % Y_zero = {active features s.t. the pair of coeff in H_t is above threshold}
 % Y_min = {passive features}
 
+bound = 10;%maximum number of active features
+
 m = n/2-1; %number of features
 robot_links = zeros(1,m);
 
@@ -27,10 +29,8 @@ for k=1:m
     robot_links(k) = norm([H_t(1,2*k+1),H_t(1,2*k+2)]);
 end
 
-% To be modified to threshold on robot_links?
-threshold = 2;
-Y_plus = find(robot_links(:)>threshold)-1;
-Y_0 = find((robot_links(:)<=threshold) & (robot_links(:)>0.1))-1;
+b = min(bound,nb_null(robot_links));
+[Y_0,Y_plus]=find_active(b,robot_links);
 
 if isempty(Y_0)
     % No sparsification
@@ -55,21 +55,19 @@ else
     for j=Y_plus
         S_x_Y0_Yplus(1:2,(1+2*j):(2+2*j)) = eye(2);
     end
-   
     for j=Y_0
         S_x_Y0_Yplus(1:2,(1+2*j):(2+2*j)) = eye(2);
     end
  
-
     % Pre-computations
     S_x = S_x';
     S_Y0 = S_Y0';
     S_x_Y0 = S_x_Y0';
     S_x_Y0_Yplus = S_x_Y0_Yplus';
     H_t_prim = S_x_Y0_Yplus*S_x_Y0_Yplus'*H_t*S_x_Y0_Yplus*S_x_Y0_Yplus';
-    H_t_1 = H_t_prim - H_t_prim*S_Y0*inv(S_Y0'*H_t_prim*S_Y0)*S_Y0'*H_t_prim;
-    H_t_2 = H_t_prim - H_t_prim*S_x_Y0*inv(S_x_Y0'*H_t_prim*S_x_Y0)*S_x_Y0'*H_t_prim;
-    H_t_3 = H_t - H_t*S_x*inv(S_x'*H_t*S_x)*S_x'*H_t;
+    H_t_1 = H_t_prim - H_t_prim*S_Y0*pinv(S_Y0'*H_t_prim*S_Y0)*S_Y0'*H_t_prim;
+    H_t_2 = H_t_prim - H_t_prim*S_x_Y0*pinv(S_x_Y0'*H_t_prim*S_x_Y0)*S_x_Y0'*H_t_prim;
+    H_t_3 = H_t - H_t*S_x*pinv(S_x'*H_t*S_x)*S_x'*H_t;
 
     % We compute H_t_tild and b_t_tild
 
