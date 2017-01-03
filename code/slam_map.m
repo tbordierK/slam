@@ -22,11 +22,12 @@ for k=ids
     Y_features_estimated(k) = mu(2*k+2)+mu(2);
 end
 
-scatter(X_features_estimated,Y_features_estimated,500,'d');
+scatter(X_features_estimated,Y_features_estimated,100,'o');
 hold on
-scatter(X_features_real,Y_features_real,140,'MarkerEdgeColor',[0 .5 .5],...
-              'MarkerFaceColor',[0 .7 .7],...
-              'LineWidth',1.5)
+% scatter(X_features_real,Y_features_real,140,'MarkerEdgeColor',[0 .5 .5],...
+%               'MarkerFaceColor',[0 .7 .7],...
+%               'LineWidth',1.5)
+scatter(X_features_real,Y_features_real,140,'+')
 hold on
 scatter(robot_position_x,robot_position_y,'filled','o')
 circle(robot_position_x,robot_position_y,robot.sensor_range);

@@ -1,11 +1,10 @@
 clear;
 clf;
-nb_iterations = 100; %number of iterations 
 K = 10 ; %number of iterations for the computation of the mean estimate
    
-sensor_range = 1;
-robot = Robot2D([2,6,sensor_range]); 
-env_features = [1,2,2,4,2,5];
+sensor_range = 0.4;
+robot = Robot2D([0,0,sensor_range]); 
+env_features = [[1,1,2,2,3,3,4,4],[1,1,2,2,3,3,4,4]+[1,0,1,0,1,0,1,0],[1,1,2,2,3,3,4,4]-[1,0,1,0,1,0,1,0]];
 
 m=size(env_features,2)/2; %number of features
 n=2*m+2; %dimension of the state vector
@@ -21,14 +20,21 @@ previous_mu_t=[robot.x_position,robot.y_position,zeros(1,n-2)]';
 mu_t = previous_mu_t;
 previous_b_t=previous_H_t*previous_mu_t;
 
-u_t=-0.2*ones(2,1); %constant control input
-u_t(1) = -0.01;
-U_t=0.01*eye(2); % Covariance matrix of the stochastic part of the robot motion model
+up = +0.2*ones(2,30);
+up(1,:) = 0;
+down = -0.2*ones(2,30);
+down(1,:) = 0;
+side = 0.25*ones(2,4);
+side(2,:) = 0;
+commands = [up,side,down,side,up,side,down,side,up,side,down,side,up,side,down,side];
+nb_iterations = size(commands,2)/2;
+%u_t=+0.1*ones(2,1); %constant control input
+U_t=0.00001*eye(2); % Covariance matrix of the stochastic part of the robot motion model
 A_t=zeros(n); % The  Special case linear dynamics, A_t = 0 always. 
 
 % Define noises
 mu_measurement = 0;
-Z = 0.1*eye(2);
+Z = 0.001*eye(2);
 
 
 %Iteration
@@ -43,6 +49,7 @@ for k = 1:nb_iterations
     display(k)
      
     % Motion Update
+    u_t = commands(:,k);
     [H_t_bar,b_t_bar] = SEIF_motion_update_2(previous_H_t,previous_b_t,previous_mu_t,u_t,A_t,U_t,n);
     
     % Measure: Robot returns a list of the features around him with
@@ -105,8 +112,7 @@ for k = 1:nb_iterations
     mu_t 
     [X_map,Y_map] = slam_map(mu_t,env_features,robot,ids,X_map,Y_map);    
     display(sprintf('Press any key to proceed')); 
-    pause;
-
+    %pause;
 end
 
 % figure
