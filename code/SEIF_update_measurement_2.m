@@ -12,7 +12,7 @@ function [H_t,b_t] = SEIF_update_measurement_2(H_t_bar,b_t_bar,mu_t,z_t,z_t_hat,
 %   H_t: the information matrix update
 %   b_t: the information vector update
 
-    inv_Z = inv(Z);
+    inv_Z = pinv(Z);
     
     C_t = zeros(n,2);
     C_t(1:2,1:2) = -eye(2);

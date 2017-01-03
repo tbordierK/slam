@@ -1,4 +1,4 @@
-function y = slam_map(mu,env_features,robot)
+function [X_features_estimated,Y_features_estimated] = slam_map(mu,env_features,robot,ids,X_previous_map,Y_previous_map)
 
 n = size(mu,1);
 m = floor(n/2-1); %number of features
@@ -14,17 +14,13 @@ end
 robot_position_x = mu(1);
 robot_position_y = mu(2);
 
+X_features_estimated = X_previous_map;
+Y_features_estimated = Y_previous_map;
 
-X_features_estimated = zeros(m,1);
-Y_features_estimated = zeros(m,1);
-
-for k=1:m
-    X_features_estimated(k) = mu(2*k+1);
-    Y_features_estimated(k) = mu(2*k+2);
+for k=ids
+    X_features_estimated(k) = mu(2*k+1)+mu(1);
+    Y_features_estimated(k) = mu(2*k+2)+mu(2);
 end
-
-X = vertcat(X_features_estimated,X_features_real);
-Y = vertcat(Y_features_estimated,Y_features_real);
 
 scatter(X_features_estimated,Y_features_estimated,500,'d');
 hold on
@@ -35,5 +31,5 @@ hold on
 scatter(robot_position_x,robot_position_y,'filled','o')
 circle(robot_position_x,robot_position_y,robot.sensor_range);
 legend('estimated features','real features','robot position');
-axis([(-2) 10 (-2) 10]);
+axis([(-1) 5 (-2) 6]);
 end
