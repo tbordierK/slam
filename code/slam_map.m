@@ -32,5 +32,5 @@ hold on
 scatter(robot_position_x,robot_position_y,'filled','o')
 circle(robot_position_x,robot_position_y,robot.sensor_range);
 legend('estimated features','real features','robot position');
-axis([(-1) 5 (-2) 6]);
+axis([(-1) 12 (-1) 12]);
 end
