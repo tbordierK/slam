@@ -2,15 +2,16 @@ clear;
 clf;
 K = 10 ; %number of iterations for the computation of the mean estimate
    
-sensor_range = 2;
+sensor_range = 0.5;
 robot = Robot2D([1,1,sensor_range]); 
-%env_features = [[1,1,2,2,3,3,4,4],[1,1,2,2,3,3,4,4]+[1,0,1,0,1,0,1,0],[1,1,2,2,3,3,4,4]-[1,0,1,0,1,0,1,0]];
 env_features = generate_grid(3);
 m=size(env_features,2)/2; %number of features
 n=2*m+2; %dimension of the state vector
 
-commands = generate_commands();
-nb_iterations = size(commands,2)/2;
+% commands = generate_commands();
+% nb_iterations = size(commands,2)/2;
+nb_iterations = 200;
+str = 'u';
 
 %Initialization
 previous_H_t=eye(n);
@@ -31,20 +32,37 @@ A_t=zeros(n); % The  Special case linear dynamics, A_t = 0 always.
 mu_measurement = 0;
 Z = 0.01*eye(2);
 
-
 %Iteration
 ids = [];
 X_map = zeros(m,1);
 Y_map = zeros(m,1);
 slam_map(mu_t,env_features,robot,ids,X_map,Y_map); 
 
+    %Directions 
+    up = +0.2*ones(2,1);
+    up(1,:) = 0;
+    down = -0.2*ones(2,1);
+    down(1,:) = 0;
+    right = 0.25*ones(2,1);
+    right(2,:) = 0;
+    left = -0.25*ones(2,1);
+    left(2,:) = 0;
 
 for k = 1:nb_iterations
     
     display(k)
      
     % Motion Update
-    u_t = commands(:,k);
+        if strcmp(str,'u')
+        u_t = up;
+    elseif strcmp(str,'d')
+        u_t = down;
+    elseif strcmp(str,'r')
+        u_t = right;
+    elseif strcmp(str,'l')
+        u_t = left;
+        end
+    
     [H_t_bar,b_t_bar] = SEIF_motion_update_2(previous_H_t,previous_b_t,previous_mu_t,u_t,A_t,U_t,n);
     
     % Measure: Robot returns a list of the features around him with
@@ -73,8 +91,8 @@ for k = 1:nb_iterations
             % State estimation, need to be changed
             mu_t = pinv(H_t)*b_t;
             
-            %Sparsification
-            [H_t, b_t] = SEIF_sparsification(H_t,b_t,mu_t,n);
+%             %Sparsification
+%             [H_t, b_t] = SEIF_sparsification(H_t,b_t,mu_t,n);
 
         end   
     
@@ -99,9 +117,15 @@ for k = 1:nb_iterations
     % Plots the map (estimated robot position, estimated features, real position of features)
     %     clf;
  
-    [X_map,Y_map] = slam_map(mu_t,env_features,robot,ids,X_map,Y_map);    
-    display(sprintf('Press any key to proceed')); 
-    pause;
+    [X_map,Y_map] = slam_map(mu_t,env_features,robot,ids,X_map,Y_map); 
+    %% 
+
+    prompt = 'Which direction? [u for up,d for down,r for right,l for left].Then press RETURN. ';
+    str = input(prompt,'s');
+
+%     display(sprintf('Press the direction')); 
+
+%     pause;
 end
 
 % figure
