@@ -14,7 +14,7 @@ function [H_t_tild,b_t_tild] = SEIF_sparsification(H_t,b_t,mu_t,n)
 % Y_zero = {active features s.t. the pair of coeff in H_t is above threshold}
 % Y_min = {passive features}
 
-bound = 5;%maximum number of active features
+bound = 10;%maximum number of active features
 
 m = n/2-1; %number of features
 robot_links = zeros(1,m);
@@ -25,11 +25,10 @@ robot_links = zeros(1,m);
 % define the strenght of the relationship between robot and feature based
 % on the the x,y values in the H_t matrix???
 
-H_t
 for k=1:m
     robot_links(k) = norm([H_t(1,2*k+1),H_t(1,2*k+2)]);
 end
-robot_links
+
 b = min(bound,nb_null(robot_links));
 [Y_0,Y_plus]=find_active(b,robot_links);
 
@@ -47,20 +46,22 @@ else
     for j=Y_0
         S_Y0(1:2,(1+2*j):(2+2*j)) = eye(2);
     end
-
+    
     S_x_Y0 = [eye(2),zeros(2,2*m)];
     for j=Y_0
         S_x_Y0(1:2,(1+2*j):(2+2*j)) = eye(2);
     end
  
-    S_x_Y0_Yplus = [eye(2),zeros(2,2*m)];   
+    S_x_Y0_Yplus = [eye(2),zeros(2,2*m)];
+  
+  
     for j=Y_plus
         S_x_Y0_Yplus(1:2,(1+2*j):(2+2*j)) = eye(2);
     end
     for j=Y_0
         S_x_Y0_Yplus(1:2,(1+2*j):(2+2*j)) = eye(2);
     end
-   
+  
     % Pre-computations
     S_x = S_x';
     S_Y0 = S_Y0';
@@ -68,14 +69,13 @@ else
     S_x_Y0_Yplus = S_x_Y0_Yplus';
 
     H_t_prim = S_x_Y0_Yplus*S_x_Y0_Yplus'*H_t*S_x_Y0_Yplus*S_x_Y0_Yplus';
-    H_t_1 = H_t_prim - H_t_prim*S_Y0*pinv(S_Y0'*H_t_prim*S_Y0)*S_Y0'*H_t_prim;
-    H_t_2 = H_t_prim - H_t_prim*S_x_Y0*pinv(S_x_Y0'*H_t_prim*S_x_Y0)*S_x_Y0'*H_t_prim;
-    H_t_3 = H_t - H_t*S_x*pinv(S_x'*H_t*S_x)*S_x'*H_t;
-
+    H_t_1 = H_t_prim - H_t_prim*S_Y0*inv(S_Y0'*H_t_prim*S_Y0)*S_Y0'*H_t_prim;
+    H_t_2 = H_t_prim - H_t_prim*S_x_Y0*inv(S_x_Y0'*H_t_prim*S_x_Y0)*S_x_Y0'*H_t_prim;
+    H_t_3 = H_t - H_t*S_x*inv(S_x'*H_t*S_x)*S_x'*H_t;
+ 
     % We compute H_t_tild and b_t_tild
 
     H_t_tild = H_t_1 - H_t_2 + H_t_3;
-
-    b_t_tild = b_t + (mu_t'*(H_t_tild - H_t))';
+    b_t_tild = b_t + (H_t_tild - H_t)*mu_t;
 end
 end

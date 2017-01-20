@@ -3,9 +3,4 @@ This project is being conducted in the scope of the Probabilistic Graphical Mode
 
 Working with Huiqin Chen and Patrick Bordes.
 
-### TODO:
-- Define 2D robot, with control function etc. 
-- Define simulated dataset
-- Understand experimental datasets
-
 

@@ -1,17 +1,15 @@
-clear;
 clf;
 K = 10 ; %number of iterations for the computation of the mean estimate
    
 sensor_range = 0.5;
 robot = Robot2D([1,1,sensor_range]); 
+%env_features = [[1,1,2,2,3,3,4,4],[1,1,2,2,3,3,4,4]+[1,0,1,0,1,0,1,0],[1,1,2,2,3,3,4,4]-[1,0,1,0,1,0,1,0]];
 env_features = generate_grid(3);
 m=size(env_features,2)/2; %number of features
 n=2*m+2; %dimension of the state vector
 
-% commands = generate_commands();
-% nb_iterations = size(commands,2)/2;
-nb_iterations = 200;
-str = 'u';
+commands = generate_commands();
+nb_iterations = size(commands,2)/2;
 
 %Initialization
 previous_H_t=eye(n);
@@ -25,49 +23,27 @@ mu_t = previous_mu_t;
 previous_b_t=previous_H_t*previous_mu_t;
 
 %u_t=+0.1*ones(2,1); %constant control input
-U_t=0.001*eye(2); % Covariance matrix of the stochastic part of the robot motion model
+U_t=0.0001*eye(2); % Covariance matrix of the stochastic part of the robot motion model
 A_t=zeros(n); % The  Special case linear dynamics, A_t = 0 always. 
 
 % Define noises
 mu_measurement = 0;
-Z = 0.01*eye(2);
+Z = 0.001*eye(2);
+
 
 %Iteration
 ids = [];
 X_map = zeros(m,1);
 Y_map = zeros(m,1);
 slam_map(mu_t,env_features,robot,ids,X_map,Y_map); 
-error = [];
-
-    %Directions 
-    up = +0.2*ones(2,1);
-    up(1,:) = 0;
-    down = -0.2*ones(2,1);
-    down(1,:) = 0;
-    right = 0.25*ones(2,1);
-    right(2,:) = 0;
-    left = -0.25*ones(2,1);
-    left(2,:) = 0;
-
-commands = generate_commands();
-nb_iterations = size(commands,2)/2;
+error_1 = [];
 
 for k = 1:nb_iterations
     
     display(k)
      
     % Motion Update
-        if strcmp(str,'u')
-        u_t = up;
-    elseif strcmp(str,'d')
-        u_t = down;
-    elseif strcmp(str,'r')
-        u_t = right;
-    elseif strcmp(str,'l')
-        u_t = left;
-        end
-    
-    %u_t = commands(:,k);
+    u_t = commands(:,k);
     [H_t_bar,b_t_bar] = SEIF_motion_update(previous_H_t,previous_b_t,previous_mu_t,u_t,A_t,U_t,n);
     
     % Measure: Robot returns a list of the features around him with
@@ -95,9 +71,10 @@ for k = 1:nb_iterations
            
             % State estimation, need to be changed
             mu_t = pinv(H_t)*b_t;
+            %mu_t = SEIF_state_estimation_2(H_t,b_t,mu_t,K,id,n);
             
-%             %Sparsification
-%             [H_t, b_t] = SEIF_sparsification(H_t,b_t,mu_t,n);
+            %Sparsification
+            %[H_t, b_t] = SEIF_sparsification(H_t,b_t,mu_t,n);
 
         end   
     
@@ -121,22 +98,15 @@ for k = 1:nb_iterations
    
     % Plots the map (estimated robot position, estimated features, real position of features)
     %     clf;
-    
-    estimation = reshape(mu_t(3:end),2,[])+[mu_t(1),mu_t(2)]';
-    estimation = reshape(estimation,1,[]);
-    error(k) = norm(estimation-env_features');
  
-    [X_map,Y_map] = slam_map(mu_t,env_features,robot,ids,X_map,Y_map); 
-    %% 
-
-    prompt = 'Which direction? [u for up,d for down,r for right,l for left].Then press RETURN. ';
-    str = input(prompt,'s');
-
-%     display(sprintf('Press the direction')); 
-
-%     pause;
+    [X_map,Y_map] = slam_map(mu_t,env_features,robot,ids,X_map,Y_map);    
+    
+    %estimation = reshape(mu_t(3:end),2,[])+[mu_t(1),mu_t(2)]';
+    %estimation = reshape(estimation,1,[]);
+    %error_1(k) = norm(estimation-env_features');
+  
 end
-
+[X_map,Y_map] = slam_map(mu_t,env_features,robot,ids,X_map,Y_map); 
 % figure
 % imagesc(H_t_bar);        % draw image and scale colormap to values range
 % colorbar;
